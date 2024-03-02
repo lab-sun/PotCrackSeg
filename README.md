@@ -85,4 +85,4 @@ If you use PotCrackSeg in your academic work, please cite:
 ```
 
 # Acknowledgement
-Some of the codes are borrowed from [CMX](https://github.com/huaaaliu/RGBX_Semantic_Segmentation).
+Some of the codes are borrowed from [IGFNet](https://github.com/lab-sun/IGFNet).
