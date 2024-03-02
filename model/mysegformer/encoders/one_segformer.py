@@ -4,8 +4,6 @@ import torch.nn.functional as F
 from functools import partial
 
 from timm.models.layers import DropPath, to_2tuple, trunc_normal_
-# from ..net_utils import FeatureFusionModule as FFM
-# from
 import math
 import time
 #from engine.logger import get_logger
@@ -241,15 +239,6 @@ class RGBXTransformer(nn.Module):
         self.patch_embed4 = OverlapPatchEmbed(img_size=img_size // 16, patch_size=3, stride=2, in_chans=embed_dims[2],
                                               embed_dim=embed_dims[3])
 
-        # self.extra_patch_embed1 = OverlapPatchEmbed(img_size=img_size, patch_size=7, stride=4, in_chans=in_chans,
-        #                                       embed_dim=embed_dims[0])
-        # self.extra_patch_embed2 = OverlapPatchEmbed(img_size=img_size // 4, patch_size=3, stride=2, in_chans=embed_dims[0],
-        #                                       embed_dim=embed_dims[1])
-        # self.extra_patch_embed3 = OverlapPatchEmbed(img_size=img_size // 8, patch_size=3, stride=2, in_chans=embed_dims[1],
-        #                                       embed_dim=embed_dims[2])
-        # self.extra_patch_embed4 = OverlapPatchEmbed(img_size=img_size // 16, patch_size=3, stride=2, in_chans=embed_dims[2],
-        #                                       embed_dim=embed_dims[3])
-
         # transformer encoder
         dpr = [x.item() for x in torch.linspace(0, drop_path_rate, sum(depths))]  # stochastic depth decay rule
         cur = 0
@@ -261,27 +250,12 @@ class RGBXTransformer(nn.Module):
             for i in range(depths[0])])
         self.norm1 = norm_layer(embed_dims[0])
 
-        # self.extra_block1 = nn.ModuleList([Block(
-        #     dim=embed_dims[0], num_heads=num_heads[0], mlp_ratio=mlp_ratios[0], qkv_bias=qkv_bias, qk_scale=qk_scale,
-        #     drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[cur + i], norm_layer=norm_layer,
-        #     sr_ratio=sr_ratios[0])
-        #     for i in range(depths[0])])
-        # self.extra_norm1 = norm_layer(embed_dims[0])
-        # cur += depths[0]
-
         self.block2 = nn.ModuleList([Block(
             dim=embed_dims[1], num_heads=num_heads[1], mlp_ratio=mlp_ratios[1], qkv_bias=qkv_bias, qk_scale=qk_scale,
             drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[cur], norm_layer=norm_layer,
             sr_ratio=sr_ratios[1])
             for i in range(depths[1])])
         self.norm2 = norm_layer(embed_dims[1])
-
-        # self.dual_segformer.pyblock2 = nn.ModuleList([Block(
-        #     dim=embed_dims[1], num_heads=num_heads[1], mlp_ratio=mlp_ratios[1], qkv_bias=qkv_bias, qk_scale=qk_scale,
-        #     drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[cur+1], norm_layer=norm_layer,
-        #     sr_ratio=sr_ratios[1])
-        #     for i in range(depths[1])])
-        # self.extra_norm2 = norm_layer(embed_dims[1])
 
         cur += depths[1]
 
@@ -292,13 +266,6 @@ class RGBXTransformer(nn.Module):
             for i in range(depths[2])])
         self.norm3 = norm_layer(embed_dims[2])
 
-        # self.extra_block3 = nn.ModuleList([Block(
-        #     dim=embed_dims[2], num_heads=num_heads[2], mlp_ratio=mlp_ratios[2], qkv_bias=qkv_bias, qk_scale=qk_scale,
-        #     drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[cur + i], norm_layer=norm_layer,
-        #     sr_ratio=sr_ratios[2])
-        #     for i in range(depths[2])])
-        # self.extra_norm3 = norm_layer(embed_dims[2])
-
         cur += depths[2]
 
         self.block4 = nn.ModuleList([Block(
@@ -307,13 +274,6 @@ class RGBXTransformer(nn.Module):
             sr_ratio=sr_ratios[3])
             for i in range(depths[3])])
         self.norm4 = norm_layer(embed_dims[3])
-
-        # self.extra_block4 = nn.ModuleList([Block(
-        #     dim=embed_dims[3], num_heads=num_heads[3], mlp_ratio=mlp_ratios[3], qkv_bias=qkv_bias, qk_scale=qk_scale,
-        #     drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[cur + i], norm_layer=norm_layer,
-        #     sr_ratio=sr_ratios[3])
-        #     for i in range(depths[3])])
-        # self.extra_norm4 = norm_layer(embed_dims[3])
 
         cur += depths[3]
 
@@ -352,70 +312,46 @@ class RGBXTransformer(nn.Module):
         # stage 1
         x_rgb, H, W = self.patch_embed1(x_rgb)
         # B H*W/16 C
-        # x_e, _, _ = self.extra_patch_embed1(x_e)
         for i, blk in enumerate(self.block1):
             x_rgb = blk(x_rgb, H, W)
-        # for i, blk in enumerate(self.extra_block1):
-        #     x_e = blk(x_e, H, W)
         x_rgb = self.norm1(x_rgb)
-        # x_e = self.extra_norm1(x_e)
 
         x_rgb = x_rgb.reshape(B, H, W, -1).permute(0, 3, 1, 2).contiguous()
-        # x_e = x_e.reshape(B, H, W, -1).permute(0, 3, 1, 2).contiguous()
    
         rgb.append(x_rgb)
-        # depth.append(x_e)
 
         
 
         # stage 2
         x_rgb, H, W = self.patch_embed2(x_rgb)
-        # x_e, _, _ = self.extra_patch_embed2(x_e)
         for i, blk in enumerate(self.block2):
             x_rgb = blk(x_rgb, H, W)
-        # for i, blk in enumerate(self.extra_block2):
-        #     x_e = blk(x_e, H, W)
         x_rgb = self.norm2(x_rgb)
-        # x_e = self.extra_norm2(x_e)
 
         x_rgb = x_rgb.reshape(B, H, W, -1).permute(0, 3, 1, 2).contiguous()
-        # x_e = x_e.reshape(B, H, W, -1).permute(0, 3, 1, 2).contiguous()
 
         rgb.append(x_rgb)
-        # depth.append(x_e)
 
         # stage 3
         x_rgb, H, W = self.patch_embed3(x_rgb)
-        # x_e, _, _ = self.extra_patch_embed3(x_e)
         for i, blk in enumerate(self.block3):
             x_rgb = blk(x_rgb, H, W)
-        # for i, blk in enumerate(self.extra_block3):
-        #     x_e = blk(x_e, H, W)
         x_rgb = self.norm3(x_rgb)
-        # x_e = self.extra_norm3(x_e)
 
         x_rgb = x_rgb.reshape(B, H, W, -1).permute(0, 3, 1, 2).contiguous()
-        # x_e = x_e.reshape(B, H, W, -1).permute(0, 3, 1, 2).contiguous()
 
         rgb.append(x_rgb)
-        # depth.append(x_e)
         
 
         # stage 4
         x_rgb, H, W = self.patch_embed4(x_rgb)
-        # x_e, _, _ = self.extra_patch_embed4(x_e)
         for i, blk in enumerate(self.block4):
             x_rgb = blk(x_rgb, H, W)
-        # for i, blk in enumerate(self.extra_block4):
-        #     x_e = blk(x_e, H, W)
         x_rgb = self.norm4(x_rgb)
-        # x_e = self.extra_norm4(x_e)
 
         x_rgb = x_rgb.reshape(B, H, W, -1).permute(0, 3, 1, 2).contiguous()
-        # x_e = x_e.reshape(B, H, W, -1).permute(0, 3, 1, 2).contiguous()
 
         rgb.append(x_rgb)
-        # depth.append(x_e)
         depth = []
         return rgb,depth
 
@@ -453,9 +389,6 @@ def load_dualpath_model(model, model_file):
     del state_dict
     
     t_end = time.time()
-    # logger.info(
-    #     "Load model, Time usage:\n\tIO: {}, initialize parameters: {}".format(
-    #         t_ioend - t_start, t_end - t_ioend))
 
 
 class mit_b0(RGBXTransformer):
