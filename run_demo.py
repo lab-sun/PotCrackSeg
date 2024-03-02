@@ -29,8 +29,8 @@ from PIL import Image
 parser = argparse.ArgumentParser(description='Test with pytorch')
 #############################################################################################
 parser.add_argument('--model_name', '-m', type=str, default='PotCrackSeg')  # DRCNet_RDe_b3V3, DRCNet_RDe_b4V3, DRCNet_RDe_b5V3 
-parser.add_argument('--weight_name', '-w', type=str, default='PotCrackSeg-5B') # DRCNet_RDe_b3V3, DRCNet_RDe_b4V3, DRCNet_RDe_b5V3 
-parser.add_argument('--backbone', '-bac', type=str, default='PotCrackSeg-5B')  # mit_3, mit_4, mit_5
+parser.add_argument('--weight_name', '-w', type=str, default='PotCrackSeg-4B') # DRCNet_RDe_b3V3, DRCNet_RDe_b4V3, DRCNet_RDe_b5V3 
+parser.add_argument('--backbone', '-bac', type=str, default='PotCrackSeg-4B')  # mit_3, mit_4, mit_5
 parser.add_argument('--file_name', '-f', type=str, default='final.pth')
 parser.add_argument('--dataset_split', '-d', type=str, default='test') # normal_test, abnormal_test, urban_test,rural_test
 parser.add_argument('--gpu', '-g', type=int, default=1)
