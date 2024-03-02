@@ -21,7 +21,7 @@ services:
     shm_size: 32g
     devices: 
       - /dev/nvidia0
-      - /dev/nvidia1
+      # - /dev/nvidia1  # Please note this line, if your computer has only one GPU
 
     # Uncomment the next four lines if you will use a ptrace-based debuggers like C++, Go, and Rust.
     # cap_add:
