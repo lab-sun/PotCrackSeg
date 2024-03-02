@@ -4,8 +4,6 @@ import torch.nn.functional as F
 from functools import partial
 
 from timm.models.layers import DropPath, to_2tuple, trunc_normal_
-# from ..net_utils import FeatureFusionModule as FFM
-# from
 import math
 import time
 #from engine.logger import get_logger
@@ -348,7 +346,6 @@ class RGBXTransformer(nn.Module):
         rgb = []
         depth = []
 
-
         # stage 1
         x_rgb, H, W = self.patch_embed1(x_rgb)
         # B H*W/16 C
@@ -365,8 +362,6 @@ class RGBXTransformer(nn.Module):
    
         rgb.append(x_rgb)
         depth.append(x_e)
-
-        
 
         # stage 2
         x_rgb, H, W = self.patch_embed2(x_rgb)
@@ -453,9 +448,6 @@ def load_dualpath_model(model, model_file):
     del state_dict
     
     t_end = time.time()
-    # logger.info(
-    #     "Load model, Time usage:\n\tIO: {}, initialize parameters: {}".format(
-    #         t_ioend - t_start, t_end - t_ioend))
 
 
 class mit_b0(RGBXTransformer):
