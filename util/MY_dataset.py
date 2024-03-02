@@ -1,6 +1,3 @@
-# By Yuxiang Sun, Jul. 3, 2021
-# Email: sun.yuxiang@outlook.com
-
 import os, torch
 from torch.utils.data.dataset import Dataset
 import numpy as np
@@ -31,8 +28,6 @@ class MY_dataset(Dataset):
         image = self.read_image(name, 'left','left')
         label = self.read_image(name, 'labels','label')
         depth = self.read_image(name, 'depth','depth')
-        #for func in self.transform:
-        #    image, label = func(image, label)
         image = np.asarray(PIL.Image.fromarray(image).resize((self.input_w, self.input_h)))
         image = image.astype('float32')
         image = np.transpose(image, (2,0,1))/255.0
