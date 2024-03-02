@@ -1,6 +1,3 @@
-# By Yuxiang Sun, Dec. 4, 2019
-# Email: sun.yuxiang@outlook.com
-
 import os, argparse, time, datetime, stat, shutil,sys
 import numpy as np
 import torch
@@ -49,7 +46,6 @@ augmentation_methods = [
     # RandomNoise(noise_range=5, prob=0.9),
 ]
 
-
 def fusion_loss(rgb_predict, rgb_comple,depth_predict, depth_comple,label):
     
     feature_map_B, feature_map_C, feature_map_W, feature_map_H = rgb_predict.size()
@@ -69,8 +65,6 @@ def fusion_loss(rgb_predict, rgb_comple,depth_predict, depth_comple,label):
     add_map_rgb=add_map_rgb.clone().detach_().requires_grad_(False)
     loss_add_rgb = F.cross_entropy(rgb_comple,add_map_rgb)
 
-
-
     loss_pr_depth_seg = F.cross_entropy(depth_predict, label)  
     depth_predict = depth_predict.detach()
     depth_predict=depth_predict.argmax(1)
@@ -81,7 +75,6 @@ def fusion_loss(rgb_predict, rgb_comple,depth_predict, depth_comple,label):
     loss_add_depth = F.cross_entropy(depth_comple,add_map_depth)
 
     loss = loss_pr_rgb_seg+loss_add_rgb+loss_pr_depth_seg+loss_add_depth
-
     return loss,add_map_rgb,add_map_depth
 
 
@@ -107,7 +100,6 @@ def train(epo, model, train_loader, optimizer):
         #loss = 0.5*loss1+loss2+loss3+loss4
         loss = 0.5*loss1+loss4
 
-
         loss.backward()
         optimizer.step()
 
@@ -123,8 +115,6 @@ def train(epo, model, train_loader, optimizer):
         lr_this_epo=0
         for param_group in optimizer.param_groups:
             lr_this_epo = param_group['lr']
-
-
 
         print('Train: %s, epo %s/%s, iter %s/%s, lr %.8f, %.2f img/sec, loss %.4f, loss_average %.4f, loss_seg_average %.4f, time %s' \
             % (args.model_name, epo, args.epoch_max, it+1, len(train_loader), lr_this_epo, len(names)/(time.time()-start_t), float(loss), float(loss_sum/(it+1)), float(loss_seg_sum/(it+1)),
@@ -151,37 +141,30 @@ def train(epo, model, train_loader, optimizer):
                 predicted_images_rgb_1 = vutils.make_grid(predicted_tensor_rgb_1, nrow=8, padding=10)
                 writer.add_image('Train/predicted_images_rgb_1', predicted_images_rgb_1, accIter['train'])
 
-
                 predicted_tensor_depth_1 = depth_predict.argmax(1).unsqueeze(1) * scale # mini_batch*args.n_class*480*640 -> mini_batch*480*640 -> mini_batch*1*480*640
                 predicted_tensor_depth_1 = torch.cat((predicted_tensor_depth_1, predicted_tensor_depth_1, predicted_tensor_depth_1),1) # change to 3-channel for visualization, mini_batch*1*480*640
                 predicted_images_depth_1 = vutils.make_grid(predicted_tensor_depth_1, nrow=8, padding=10)
                 writer.add_image('Train/predicted_images_depth_1', predicted_images_depth_1, accIter['train'])
-
 
                 add_map_rgb_1 = add_map_rgb.unsqueeze(1) * scale 
                 predicted_tensor_need_rgb_1 = torch.cat((add_map_rgb_1, add_map_rgb_1, add_map_rgb_1), 1)  # change to 3-channel for visualization
                 predicted_images_need_rgb_1 = vutils.make_grid(predicted_tensor_need_rgb_1, nrow=8, padding=10)
                 writer.add_image('Train/predicted_images_need_rgb_1', predicted_images_need_rgb_1, accIter['train'])
 
-
                 add_map_depth_1 = add_map_depth.unsqueeze(1) * scale 
                 predicted_tensor_need_depth_1 = torch.cat((add_map_depth_1, add_map_depth_1, add_map_depth_1), 1)  # change to 3-channel for visualization
                 predicted_images_need_depth_1 = vutils.make_grid(predicted_tensor_need_depth_1, nrow=8, padding=10)
                 writer.add_image('Train/predicted_images_need_depth_1', predicted_images_need_depth_1, accIter['train'])
-
 
                 predicted_tensor_complex_rgb_1 = rgb_comple.argmax(1).unsqueeze(1) * scale # mini_batch*args.n_class*480*640 -> mini_batch*480*640 -> mini_batch*1*480*640
                 predicted_tensor_complex_rgb_1 = torch.cat((predicted_tensor_complex_rgb_1, predicted_tensor_complex_rgb_1, predicted_tensor_complex_rgb_1),1) # change to 3-channel for visualization, mini_batch*1*480*640
                 predicted_images_complex_rgb_1 = vutils.make_grid(predicted_tensor_complex_rgb_1, nrow=8, padding=10)
                 writer.add_image('Train/predicted_images_complex_rgb_1', predicted_images_complex_rgb_1, accIter['train'])
 
-
                 predicted_tensor_complex_depth_1 = depth_comple.argmax(1).unsqueeze(1) * scale # mini_batch*args.n_class*480*640 -> mini_batch*480*640 -> mini_batch*1*480*640
                 predicted_tensor_complex_depth_1 = torch.cat((predicted_tensor_complex_depth_1, predicted_tensor_complex_depth_1, predicted_tensor_complex_depth_1),1) # change to 3-channel for visualization, mini_batch*1*480*640
                 predicted_images_complex_depth_1 = vutils.make_grid(predicted_tensor_complex_depth_1, nrow=8, padding=10)
                 writer.add_image('Train/predicted_images_complex_depth_1', predicted_images_complex_depth_1, accIter['train'])
-
-
         accIter['train'] = accIter['train'] + 1
 
 def validation(epo, model, val_loader): 
