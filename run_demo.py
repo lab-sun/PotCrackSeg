@@ -1,7 +1,3 @@
-# By Yuxiang Sun, Dec. 14, 2020
-# Email: sun.yuxiang@outlook.com
-
-
 import os, argparse, time, datetime, stat, shutil,sys
 import numpy as np
 import torch
@@ -11,19 +7,14 @@ from torch.autograd import Variable
 from torch.utils.data import DataLoader
 import torchvision.utils as vutils
 from util.MY_dataset import MY_dataset
-from util.augmentation import RandomFlip, RandomCrop, RandomCropOut, RandomBrightness, RandomNoise
 from sklearn.metrics import confusion_matrix
 from util.util import compute_results, visualize
 from scipy.io import savemat 
 from torch.utils.tensorboard import SummaryWriter
-
 from model import PotCrackSeg 
-
 from util.lr_policy import WarmUpPolyLR
 from util.init_func import init_weight, group_weight
 from config import config
-# from thop import profile
-from PIL import Image 
 
 #############################################################################################
 parser = argparse.ArgumentParser(description='Test with pytorch')
@@ -46,30 +37,10 @@ args = parser.parse_args()
 
 def get_palette():
     unlabelled = [0,0,0]
-    potholes        = [153,0,0]
+    potholes   = [153,0,0]
     cracks     = [0,153,0]
     palette    = np.array([unlabelled,potholes, cracks])
     return palette
-
-
-def visualize_feature(image_name,predictions,type = "rgb"):
-    for (i, pred) in enumerate(predictions):
-        pred = predictions[i].cpu().numpy()
-        pred = np.transpose(pred, (1,2,0))
-        img = Image.fromarray(np.uint8(pred*255))
-        img.save('runs/Pred_' +type+ image_name[i] + '.png')
-
-
-def visualize2(image_name, predictions, weight_name):
-    palette = get_palette()
-    for (i, pred) in enumerate(predictions):
-        pred = predictions[i].cpu().numpy()
-        img = np.zeros((pred.shape[0], pred.shape[1], 3), dtype=np.uint8)
-        for cid in range(0, len(palette)): # fix the mistake from the MFNet code on Dec.27, 2019
-            img[pred == cid] = palette[cid]
-        img = Image.fromarray(np.uint8(img))
-        img.save('runs/Pred_' + weight_name + '_' + image_name[i] + '.png')
-
 
 
 if __name__ == '__main__':
@@ -127,27 +98,9 @@ if __name__ == '__main__':
             # print(params)
             torch.cuda.synchronize()
             start_time = time.time()
-            
-            #rgb_result = model(images) #   For Single modal 
-
             rgb_predict, rgb_comple, rgb_fusion, depth_predict, depth_comple, depth_fusion, logits= model(images)
             torch.cuda.synchronize()
-            end_time = time.time()
-
-            # visualize_feature(image_name=names,predictions=rgb_predict,type="rgb_predict")
-            # visualize_feature(image_name=names,predictions=rgb_comple,type="rgb_comple")
-            # visualize_feature(image_name=names,predictions=rgb_fusion,type="rgb_fusion")
-            # visualize_feature(image_name=names,predictions=depth_predict,type="depth_predict")
-            # visualize_feature(image_name=names,predictions=depth_comple,type="depth_comple")
-            # visualize_feature(image_name=names,predictions=depth_fusion,type="depth_fusion")
-            visualize2(image_name=names, predictions=rgb_predict.argmax(1), weight_name="rgb_predict")
-            visualize2(image_name=names, predictions=rgb_comple.argmax(1), weight_name="rgb_comple")
-            visualize2(image_name=names, predictions=rgb_fusion.argmax(1), weight_name="rgb_fusion")
-            visualize2(image_name=names, predictions=depth_predict.argmax(1), weight_name="depth_predict")
-            visualize2(image_name=names, predictions=depth_comple.argmax(1), weight_name="depth_comple")
-            visualize2(image_name=names, predictions=depth_fusion.argmax(1), weight_name="depth_fusion")
-
-            
+            end_time = time.time()            
             if it>=5: # # ignore the first 5 frames
                 ave_time_cost += (end_time-start_time)
             # convert tensor to numpy 1d array
