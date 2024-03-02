@@ -1,7 +1,5 @@
 import numpy as np
 from PIL import Image
-#from ipdb import set_trace as st
-
 
 class RandomFlip():
     def __init__(self, prob=0.5):
@@ -13,7 +11,6 @@ class RandomFlip():
             image = image[:,::-1]
             label = label[:,::-1]
         return image, label
-
 
 class RandomCrop():
     def __init__(self, crop_rate=0.1, prob=1.0):
