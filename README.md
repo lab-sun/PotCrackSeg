@@ -4,14 +4,14 @@ The official pytorch implementation of **Segmentation of Road Negative Obstacles
 
 We test our code in Python 3.8, CUDA 11.3, cuDNN 8, and PyTorch 1.12.1. We provide `Dockerfile` to build the docker image we used. You can modify the `Dockerfile` as you want.  
 <div align=center>
-<img src="docs/overall.png" width="900px"/>
+<img src="https://github.com/lab-sun/PotCrackSeg/blob/main/docs/overall.jpg" width="900px"/>
 </div>
 
 # Demo
 
 The accompanied video can be found at: 
 <div align=center>
-<a href="https://www.youtube.com/watch?v=yoW52JeTDR8&t=7s"><img src="docs/qualitativeresultsgray5.png" width="70%" height="70%" />
+<a href="https://www.youtube.com/watch?v=yoW52JeTDR8&t=7s"><img src="docs/results.jpg" width="70%" height="70%" />
 </div>
 
 # Introduction
