@@ -1,5 +1,5 @@
 # PotCrackSeg
-The official pytorch implementation of **Segmentation of Road Negative Obstacles Based on Dual Semantic-feature Complementary Fusion for Autonomous Driving**. ([TIV](https://ieeexplore.ieee.org/document/10114585))
+The official pytorch implementation of **Segmentation of Road Negative Obstacles Based on Dual Semantic-feature Complementary Fusion for Autonomous Driving**. ([TIV]https://ieeexplore.ieee.org/document/10468640/))
 
 
 We test our code in Python 3.8, CUDA 11.3, cuDNN 8, and PyTorch 1.12.1. We provide `Dockerfile` to build the docker image we used. You can modify the `Dockerfile` as you want.  
