@@ -11,7 +11,7 @@ We test our code in Python 3.8, CUDA 11.3, cuDNN 8, and PyTorch 1.12.1. We provi
 
 The accompanied video can be found at: 
 <div align=center>
-<a href="https://www.youtube.com/watch?v=yoW52JeTDR8&t=7s"><img src="docs/results.jpg" width="70%" height="70%" />
+<a href="https://youtu.be/_2wDZ_qmDiY"><img src="docs/results.jpg" width="70%" height="70%" />
 </div>
 
 # Introduction
