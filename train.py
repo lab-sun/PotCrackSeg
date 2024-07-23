@@ -200,7 +200,7 @@ def validation(epo, model, val_loader):
 def testing(epo, model, test_loader):
     model.eval()
     conf_total = np.zeros((args.n_class, args.n_class))
-    label_list = ["unlabeled", "person", "car"]
+    label_list = ["unlabeled", "pothole", "crack"]
     testing_results_file = os.path.join(weight_dir, 'testing_results_file.txt')
     with torch.no_grad():
         for it, (images, labels, names) in enumerate(test_loader):
