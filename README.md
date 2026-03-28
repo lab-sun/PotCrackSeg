@@ -1,7 +1,6 @@
 # PotCrackSeg
 The official pytorch implementation of **Segmentation of Road Negative Obstacles Based on Dual Semantic-feature Complementary Fusion for Autonomous Driving**. ([TIV](https://ieeexplore.ieee.org/document/10468640/))
 
-
 We test our code in Python 3.8, CUDA 11.3, cuDNN 8, and PyTorch 1.12.1. We provide `Dockerfile` to build the docker image we used. You can modify the `Dockerfile` as you want.  
 <div align=center>
 <img src="https://github.com/lab-sun/PotCrackSeg/blob/main/docs/overall.jpg" width="900px"/>
@@ -15,11 +14,9 @@ The accompanied video can be found at:
 </div>
 
 # Introduction
-
 PotCrackSeg with an RGB-Depth fusion network with a dual semantic-feature complementary fusion module for the segmentation of potholes and cracks in traffic scenes.
 
 # Dataset
-
 The **NPO++** dataset is upgraded from the existing [**NPO**](https://pan.baidu.com/s/1-LuHyKXEuJ0oLMe1PHtq0Q?pwd=drno) dataset by re-labeling potholes and cracks. You can downloaded **NPO++** dataset from [here](https://pan.baidu.com/s/1608EIKo-be63XE3-7UYcIQ?pwd=uxks)
 
 # Pretrained weights
@@ -79,9 +76,17 @@ The results will be saved in the `./runs` folder.
 Note: Please change the smoothing factor in the Tensorboard webpage to `0.999`, otherwise, you may not find the patterns from the noisy plots. If you have the error `docker: Error response from daemon: could not select device driver`, please first install [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) on your computer!
 
 # Citation
-If you use PotCrackSeg in your academic work, please cite:
+If you use PotCrackSeg in your work, please cite:
 ```
-
+@ARTICLE{feng2024segmentation,
+  author={Zhen Feng and Yanning Guo and Yuxiang Sun},
+  journal={IEEE Transactions on Intelligent Vehicles}, 
+  title={Segmentation of Road Negative Obstacles Based on Dual Semantic-Feature Complementary Fusion for Autonomous Driving}, 
+  year={2024},
+  volume={9},
+  number={4},
+  pages={4687-4697},
+  doi={10.1109/TIV.2024.3376534}}
 ```
 
 # Acknowledgement
