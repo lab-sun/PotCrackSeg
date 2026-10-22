@@ -10,8 +10,9 @@ import warnings
 
 import numpy as np
 import pytest
+import torch
 
-from util.util import compute_results, get_palette
+from util.util import compute_results, get_palette, label2onehot
 
 
 @pytest.fixture(autouse=True)
@@ -24,6 +25,18 @@ def fail_on_warnings():
 def test_get_palette_shape():
     palette = get_palette()
     assert palette.shape == (5, 3)
+
+
+def test_perfect_huge_diagonal_stays_one():
+    conf = np.array([
+        [1e308, 0.0],
+        [0.0, 1.0],
+    ])
+    precision, recall, iou, f1 = compute_results(conf)
+    np.testing.assert_allclose(precision, [1.0, 1.0])
+    np.testing.assert_allclose(recall, [1.0, 1.0])
+    np.testing.assert_allclose(iou, [1.0, 1.0])
+    np.testing.assert_allclose(f1, [1.0, 1.0])
 
 
 def test_perfect_prediction():
@@ -87,4 +100,87 @@ def test_zero_true_positives_f1_is_nan():
     precision, recall, iou, f1 = compute_results(conf)
     assert precision[1] == 0.0
     assert recall[1] == 0.0
+    assert iou[1] == 0.0
     assert np.isnan(f1[1])
+
+
+def test_int64_counts_do_not_overflow_metrics():
+    # 2**62 + 2**62 overflows int64 to a negative row sum.
+    conf = np.array([
+        [np.int64(2**62), np.int64(2**62)],
+        [np.int64(0), np.int64(1)],
+    ], dtype=np.int64)
+    precision, recall, iou, f1 = compute_results(conf)
+    assert precision[0] == 1.0
+    assert recall[0] == 0.5
+    assert iou[0] == 0.5
+    assert f1[0] == pytest.approx(2 / (1 / 1.0 + 1 / 0.5))
+    assert recall[1] == 1.0
+    assert 0.0 < precision[1] < 1.0
+    assert np.isfinite(f1[1])
+
+    # 2**24 + 1 is not exact in float32, so the reduction must be float64.
+    narrow = np.array([[2**24, 1], [0, 1]], dtype=np.int64)
+    precision, recall, iou, f1 = compute_results(narrow)
+    # Column sum is the exact power of two, so precision stays 1.
+    # Row sum is 2**24 + 1, which float32 rounds away and float64 keeps.
+    assert precision[0] == 1.0
+    assert recall[0] == pytest.approx((2**24) / (2**24 + 1))
+    assert recall[0] < 1.0
+    assert iou[0] == pytest.approx((2**24) / (2**24 + 1))
+    assert f1[0] == pytest.approx(2 / (1 / precision[0] + 1 / recall[0]))
+
+
+def test_f1_is_nan_when_only_one_ratio_underflows_to_zero():
+    # Column sum overflows the mantissa of the tiny true positive: precision is 0, recall is 1.
+    conf = np.array([
+        [1e-320, 0.0],
+        [1e308, 1.0],
+    ])
+    precision, recall, iou, f1 = compute_results(conf)
+    assert precision[0] == 0.0
+    assert recall[0] == 1.0
+    assert iou[0] == 0.0
+    assert np.isnan(f1[0])
+
+    # Row sum does the same to recall while precision stays 1.
+    conf = np.array([
+        [1e-320, 1e308],
+        [0.0, 1.0],
+    ])
+    precision, recall, iou, f1 = compute_results(conf)
+    assert precision[0] == 1.0
+    assert recall[0] == 0.0
+    assert iou[0] == 0.0
+    assert np.isnan(f1[0])
+
+
+def test_class_count_follows_confusion_rows():
+    conf = np.array([
+        [5, 1, 4],
+        [2, 3, 0],
+    ])
+    precision, recall, iou, f1 = compute_results(conf)
+    assert precision.shape == (2,)
+    assert precision[0] == pytest.approx(5 / 7)
+    assert recall[0] == pytest.approx(5 / 10)
+    assert iou[0] == pytest.approx(5 / 12)
+    assert f1[0] == pytest.approx(2 / (1 / (5 / 7) + 1 / 0.5))
+    assert precision[1] == pytest.approx(3 / 4)
+    assert recall[1] == pytest.approx(3 / 5)
+    assert iou[1] == pytest.approx(0.5)
+    assert f1[1] == pytest.approx(2 / (1 / (3 / 4) + 1 / (3 / 5)))
+
+
+def test_label2onehot_returns_float_mask_for_uint8_ids():
+    label = np.array([[0, 1], [2, 0]], dtype=np.uint8)
+    out = label2onehot(label, n_class=3, input_w=2, input_h=2)
+    assert out.dtype == torch.float32
+    assert out.shape == (3, 2, 2)
+    assert torch.equal(out.sum(dim=0), torch.ones(2, 2))
+    expected = torch.tensor([
+        [[1, 0], [0, 1]],
+        [[0, 1], [0, 0]],
+        [[0, 0], [1, 0]],
+    ], dtype=torch.float32)
+    assert torch.equal(out, expected)

@@ -82,7 +82,7 @@ Note: Please change the smoothing factor in the Tensorboard webpage to `0.999`, 
 ## Run tests
 
 ```
-$ pip install numpy pillow pytest torch; pytest -q
+$ pip install numpy pillow pytest hypothesis scikit-learn torch; pytest -q
 ```
 
 # Citation
