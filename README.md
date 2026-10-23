@@ -75,6 +75,16 @@ $ (fire up your favorite browser with http://localhost:1234, you will see the te
 The results will be saved in the `./runs` folder.
 Note: Please change the smoothing factor in the Tensorboard webpage to `0.999`, otherwise, you may not find the patterns from the noisy plots. If you have the error `docker: Error response from daemon: could not select device driver`, please first install [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) on your computer!
 
+## Evaluation metrics
+
+`run_demo.py` and `train.py` compute per-class precision, recall, IoU and F1 from the confusion matrix accumulated over the test set (rows ground truth, columns prediction) for classes unlabeled, pothole, crack. `run_demo.py` averages over pothole and crack. `train.py` appends them to `testing_results_file.txt` each epoch.
+
+## Run tests
+
+```
+$ pip install numpy pillow pytest hypothesis scikit-learn torch; pytest -q
+```
+
 # Citation
 If you use PotCrackSeg in your work, please cite:
 ```

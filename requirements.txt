@@ -1,0 +1,11 @@
+torch==1.12.1
+torchvision==0.13.1
+scipy
+scikit-learn
+tensorboard==2.11.0
+einops
+torchsummary
+numpy
+Pillow
+pytest
+hypothesis

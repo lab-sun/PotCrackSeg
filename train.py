@@ -226,7 +226,7 @@ def testing(epo, model, test_loader):
     if epo==0:
         with open(testing_results_file, 'w') as f:
             f.write("# %s, initial lr: %s, batch size: %s, date: %s \n" %(args.model_name, args.lr_start, args.batch_size, datetime.date.today()))
-            f.write("# epoch: unlabeled, car, person, bike, curve, car_stop, guardrail, color_cone, bump,  average(nan_to_num). (Pre %, Acc %, IoU %, F1 %)\n")
+            f.write("# epoch: unlabeled, pothole, crack, average(nan_to_num). (Pre %, Recall %, IoU %, F1 %) per class\n")
     with open(testing_results_file, 'a') as f:
         f.write(str(epo)+': ')
         for i in range(len(precision)):
